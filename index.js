@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 
 const appSettings = {
@@ -19,24 +19,54 @@ addButtonEl.addEventListener("click", () => {
     let inputValue = inputFieldEl.value;
     push(shoppingListInDB, inputValue);
     clearInputField();
-    appendItemValueToShoppingListEl(inputValue)
-    
+    cl
     console.log(`${inputValue} added to database`);
 });
 
 onValue(shoppingListInDB, function(snaphot) {
-    let itemArray = Object.values(snaphot.val());
 
-    for(let i = 0; i < itemArray.length; i++) {
-        appendItemValueToShoppingListEl(itemArray[i]);
-        console.log(itemArray[i]);
+    if(snaphot.exists()) {
+        let itemsArray = Object.entries(snaphot.val());
+        clearShoppingListEl();
+        for(let i = 0; i < itemsArray.length; i++) {
+            let currentItem = itemsArray[i];
+            let currentItemID = currentItem[0];
+            let currentItemValue = currentItem[1];
+            appendItemToShoppingListEl(currentItem);
+        }
+    } 
+    else {
+        shoppingListEl.innerHTML = "No items here";
     }
+
+    
 
 });
 
+//empty input field
 function clearInputField() {
     inputFieldEl.value = "";
 }
-function appendItemValueToShoppingListEl(itemValue) {
-    shoppingListEl.innerHTML += "<li>" + itemValue + "</li>";
+
+//remove all tags of li in shoppingListEl
+function clearShoppingListEl() {
+    shoppingListEl.innerHTML = "";
+}
+
+//insert item into shoppingListEl
+function appendItemToShoppingListEl(item) {
+    let itemID = item[0];
+    let itemValue = item[1];
+
+    let newEl = document.createElement("li");
+    newEl.textContent = itemValue;
+
+    newEl.addEventListener("dblclick", function() {
+        let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`);
+        remove(exactLocationOfItemInDB); 
+    });
+
+
+    shoppingListEl.append(newEl);
+
 }
