@@ -25,7 +25,13 @@ addButtonEl.addEventListener("click", () => {
 });
 
 onValue(shoppingListInDB, function(snaphot) {
-    console.log(snaphot.val());
+    let itemArray = Object.values(snaphot.val());
+
+    for(let i = 0; i < itemArray.length; i++) {
+        appendItemValueToShoppingListEl(itemArray[i]);
+        console.log(itemArray[i]);
+    }
+
 });
 
 function clearInputField() {
